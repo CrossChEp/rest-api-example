@@ -8,7 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"rest-api-example/config"
 	"rest-api-example/internal/models"
-	"rest-api-example/pkg/sql_queries"
+	"rest-api-example/pkg/sqlQueries"
 	"time"
 )
 
@@ -25,15 +25,15 @@ func NewUserRepo(cfg *config.Config, db *sqlx.DB) *UserRepo {
 }
 
 func (r *UserRepo) Create(ctx context.Context, user models.User) (models.UserID, error) {
-	query, args, err := sq.Insert(sql_queries.UserTable).
-		Columns(sql_queries.InsertUserColumns...).
+	query, args, err := sq.Insert(sqlQueries.UserTable).
+		Columns(sqlQueries.InsertUserColumns...).
 		Values(
 			user.Name,
 			user.Email,
 			user.Password,
 			time.Now(),
 		).
-		Suffix(fmt.Sprintf("RETURNING %s", sql_queries.UserIDColumnName)).
+		Suffix(fmt.Sprintf("RETURNING %s", sqlQueries.UserIDColumnName)).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
@@ -43,7 +43,7 @@ func (r *UserRepo) Create(ctx context.Context, user models.User) (models.UserID,
 	var userID models.UserID
 	err = r.db.QueryRowContext(ctx, query, args...).Scan(&userID)
 	if err != nil {
-		return -1, nil
+		return -1, err
 	}
 
 	return userID, nil
@@ -65,8 +65,8 @@ func (r *UserRepo) GetMany(ctx context.Context, filter models.UserFilter) ([]mod
 
 	conds := r.getConds(filter)
 
-	query, args, err := sq.Select(sql_queries.GetUserColumns...).
-		From(sql_queries.UserTable).
+	query, args, err := sq.Select(sqlQueries.GetUserColumns...).
+		From(sqlQueries.UserTable).
 		Where(conds).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
@@ -88,26 +88,26 @@ func (r *UserRepo) getConds(filter models.UserFilter) sq.And {
 
 	if len(filter.IDs) != 0 {
 		sb = append(sb, sq.Eq{
-			sql_queries.UserIDColumnName: filter.IDs,
+			sqlQueries.UserIDColumnName: filter.IDs,
 		})
 	}
 	if len(filter.Names) != 0 {
 		sb = append(sb, sq.Eq{
-			sql_queries.NameColumnName: filter.Names,
+			sqlQueries.NameColumnName: filter.Names,
 		})
 	}
 	if len(filter.Emails) != 0 {
 		sb = append(sb, sq.Eq{
-			sql_queries.EmailColumnName: filter.Emails,
+			sqlQueries.EmailColumnName: filter.Emails,
 		})
 	}
 	if len(filter.Passwords) != 0 {
 		sb = append(sb, sq.Eq{
-			sql_queries.PasswordColumnName: filter.Passwords,
+			sqlQueries.PasswordColumnName: filter.Passwords,
 		})
 	}
 	sb = append(sb, sq.Eq{
-		sql_queries.DeletedAtColumnName: nil,
+		sqlQueries.DeletedAtColumnName: nil,
 	})
 	return sb
 }

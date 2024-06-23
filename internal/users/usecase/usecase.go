@@ -3,26 +3,21 @@ package usecase
 import (
 	"context"
 	"errors"
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"rest-api-example/config"
 	"rest-api-example/internal/models"
 	"rest-api-example/pkg/utils"
-	"strconv"
-	"time"
 )
 
 type UserUC struct {
-	cfg       *config.Config
-	userRepo  UserRepo
-	userRedis UserRedisRepo
+	cfg      *config.Config
+	userRepo UserRepo
 }
 
-func NewUserUC(cfg *config.Config, userRepo UserRepo, userRedis UserRedisRepo) *UserUC {
+func NewUserUC(cfg *config.Config, userRepo UserRepo) *UserUC {
 	return &UserUC{
-		cfg:       cfg,
-		userRepo:  userRepo,
-		userRedis: userRedis,
+		cfg:      cfg,
+		userRepo: userRepo,
 	}
 }
 
@@ -38,31 +33,17 @@ func (u *UserUC) Register(ctx context.Context, regData RegisterUser) (models.Use
 	return u.userRepo.Create(ctx, user)
 }
 
-func (u *UserUC) SignIn(ctx context.Context, signInData SignIn) (models.Session, error) {
+func (u *UserUC) SignIn(ctx context.Context, signInData SignIn) error {
 	user, err := u.userRepo.Get(ctx, models.UserFilter{
 		Emails: []string{signInData.Email},
 	})
 	if err != nil {
-		return models.Session{}, err
+		return err
 	}
 
 	if !utils.IsPasswordCorrect([]byte(signInData.Password), []byte(user.Password)) {
-		return models.Session{}, errors.New("wrong password")
+		return errors.New("wrong password")
 	}
 
-	session := models.Session{
-		SessionKey: strconv.Itoa(int(user.ID)) + ":" + uuid.NewString() + ":user",
-		TTL:        u.cfg.SessionSettings.SessionTTLSeconds,
-	}
-
-	if err := u.userRedis.PutSession(ctx, models.CacheUserSession{
-		SessionKey: session.SessionKey,
-		UserAgent:  "",
-		Duration:   time.Duration(u.cfg.SessionSettings.SessionTTLSeconds),
-		ID:         int(user.ID),
-	}); err != nil {
-		return models.Session{}, nil
-	}
-
-	return session, nil
+	return nil
 }

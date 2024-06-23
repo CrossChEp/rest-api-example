@@ -1,12 +1,12 @@
-package sql_queries
+package sqlQueries
 
 const (
-	UserTable           = "users"
+	UserTable           = "user_schema.users"
 	UserIDColumnName    = "id"
 	NameColumnName      = "name"
 	EmailColumnName     = "email"
 	PasswordColumnName  = "password"
-	CreatedAtColumnName = "created_at"
+	CreatedAtColumnName = "create_at"
 	DeletedAtColumnName = "deleted_at"
 )
 

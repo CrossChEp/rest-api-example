@@ -18,9 +18,7 @@ func main() {
 		log.Fatalf("Couldn't load db, err=%v", err)
 	}
 
-	redisDB := conndb.NewRedisClient(cfg)
-
-	s := server.NewServer(cfg, db, redisDB)
+	s := server.NewServer(cfg, db)
 
 	if err := s.Run(); err != nil {
 		log.Fatalf("Couldn't run server, err=%v", err)

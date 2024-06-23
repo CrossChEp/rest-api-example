@@ -10,8 +10,7 @@ const configPath = "./config/config.json"
 
 type Config struct {
 	Server struct {
-		Host         string
-		CookieDomain string
+		Host string
 	}
 	Postgres struct {
 		Host     string

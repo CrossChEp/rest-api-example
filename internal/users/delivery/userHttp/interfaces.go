@@ -1,4 +1,4 @@
-package http
+package userHttp
 
 import (
 	"context"
@@ -10,11 +10,10 @@ import (
 type (
 	UserUC interface {
 		Register(ctx context.Context, regData usecase.RegisterUser) (models.UserID, error)
-		SignIn(ctx context.Context, signInData usecase.SignIn) (models.Session, error)
+		SignIn(ctx context.Context, signInData usecase.SignIn) error
 	}
 
 	Handlers interface {
 		Register() fiber.Handler
-		SignIn() fiber.Handler
 	}
 )

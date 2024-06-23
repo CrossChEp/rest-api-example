@@ -1,11 +1,9 @@
 package server
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/jmoiron/sqlx"
-	"github.com/redis/go-redis/v9"
-	"log"
 	"os"
 	"os/signal"
 	"rest-api-example/config"
@@ -14,33 +12,24 @@ import (
 
 type Server struct {
 	cfg      *config.Config
-	fiber    *fiber.App
 	postgres *sqlx.DB
-	redis    *redis.Client
+	fiber    *fiber.App
 }
 
-func NewServer(cfg *config.Config, postgres *sqlx.DB, redis *redis.Client) *Server {
+func NewServer(cfg *config.Config, postgres *sqlx.DB) *Server {
 	return &Server{
-		cfg: cfg,
-		fiber: fiber.New(fiber.Config{
-			DisableStartupMessage: true,
-		}),
+		cfg:      cfg,
 		postgres: postgres,
-		redis:    redis,
+		fiber:    fiber.New(),
 	}
 }
 
 func (s *Server) Run() error {
-	s.fiber.Use(cors.New(cors.Config{
-		AllowOrigins:     "https://chainik.fun, https://chainik.pro",
-		AllowCredentials: true,
-	}))
-
 	s.MapHandlers()
 
 	go func() {
 		if err := s.fiber.Listen(s.cfg.Server.Host); err != nil {
-			log.Fatalf("Couldn't start fiber server, err=%v", err)
+			panic(err)
 		}
 	}()
 
@@ -48,8 +37,12 @@ func (s *Server) Run() error {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	if err := s.fiber.Shutdown(); err != nil {
-		return err
+	err := s.fiber.Shutdown()
+	if err != nil {
+		fmt.Println("Server finished with panic")
+	} else {
+		fmt.Println("HTTP server closed properly")
 	}
+
 	return nil
 }
