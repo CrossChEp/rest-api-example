@@ -20,7 +20,7 @@ type user struct {
 	Name      string        `db:"name"`
 	Email     string        `db:"email"`
 	Password  string        `db:"password"`
-	CreatedAt time.Time     `db:"created_at"`
+	CreatedAt time.Time     `db:"create_at"`
 	//DeletedAt time.Time     `db:"deleted_at"`
 }
 

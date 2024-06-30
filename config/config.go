@@ -1,12 +1,17 @@
 package config
 
 import (
+	"crypto/ecdsa"
 	"encoding/json"
+	"github.com/golang-jwt/jwt"
 	"os"
 	"rest-api-example/internal/models"
 )
 
-const configPath = "./config/config.json"
+const (
+	configPath = "./config/config.json"
+	keyPath    = "./config/ec_key.pem"
+)
 
 type Config struct {
 	Server struct {
@@ -40,6 +45,9 @@ type Config struct {
 	SessionSettings struct {
 		SessionTTLSeconds models.TTL
 	}
+
+	PublicKey  *ecdsa.PublicKey
+	PrivateKey *ecdsa.PrivateKey
 }
 
 func LoadConfig() (c *Config, err error) {
@@ -52,5 +60,17 @@ func LoadConfig() (c *Config, err error) {
 	if err != nil {
 		return nil, err
 	}
+
+	pem, err := os.ReadFile(keyPath)
+	if err != nil {
+		return nil, err
+	}
+
+	c.PrivateKey, err = jwt.ParseECPrivateKeyFromPEM(pem)
+	if err != nil {
+		return
+	}
+
+	c.PublicKey = &c.PrivateKey.PublicKey
 	return
 }
