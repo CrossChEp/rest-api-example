@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jmoiron/sqlx"
+	"github.com/redis/go-redis/v9"
 	"os"
 	"os/signal"
 	"rest-api-example/config"
@@ -14,12 +15,14 @@ type Server struct {
 	cfg      *config.Config
 	postgres *sqlx.DB
 	fiber    *fiber.App
+	redis    *redis.Client
 }
 
-func NewServer(cfg *config.Config, postgres *sqlx.DB) *Server {
+func NewServer(cfg *config.Config, redis *redis.Client, postgres *sqlx.DB) *Server {
 	return &Server{
 		cfg:      cfg,
 		postgres: postgres,
+		redis:    redis,
 		fiber:    fiber.New(),
 	}
 }

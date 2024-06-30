@@ -10,7 +10,8 @@ const configPath = "./config/config.json"
 
 type Config struct {
 	Server struct {
-		Host string
+		Host   string
+		Domain string
 	}
 	Postgres struct {
 		Host     string
@@ -19,23 +20,11 @@ type Config struct {
 		Password string
 		DBName   string
 	}
-	Cache struct {
-		Session struct {
-			Host               string
-			Port               string
-			MinIdleConns       int
-			PoolSize           int
-			PoolTimeout        int
-			Password           string
-			UseCertificates    bool
-			InsecureSkipVerify bool
-			CertificatesPaths  struct {
-				Cert string
-				Key  string
-				Ca   string
-			}
-			DB int
-		}
+	Redis struct {
+		Host     string
+		Port     string
+		Password string
+		DB       int
 	}
 	SessionSettings struct {
 		SessionTTLSeconds models.TTL

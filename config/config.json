@@ -1,6 +1,7 @@
 {
   "Server": {
-    "Host": "localhost:9000"
+    "Host": "localhost:9000",
+    "Domain": "localhost"
   },
   "Postgres": {
     "Host": "localhost",
@@ -9,24 +10,12 @@
     "Password": "test",
     "DBName": "pupa_lupa"
   },
-  "Cache": {
-    "Engine": {
+  "Redis": {
       "Host": "localhost",
       "Port": "6379",
-      "MinIdleConns": 10,
-      "PoolSize": 10,
-      "PoolTimeout": 10,
       "Password": "dev",
-      "UseCertificates": false,
-      "InsecureSkipVerify": false,
-      "CertificatesPaths": {
-        "Cert": "",
-        "Key": "",
-        "Ca": "../../../../Certs/RedisDO.crt"
-      },
       "DB": 1
-    }
-    },
+  },
   "SessionSettings": {
     "SessionTTLSeconds":28000
   }
