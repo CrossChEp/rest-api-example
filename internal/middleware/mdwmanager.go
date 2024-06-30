@@ -8,6 +8,7 @@ import (
 	"rest-api-example/config"
 	"rest-api-example/internal/models"
 	"strings"
+	"time"
 )
 
 type MDWManager struct {
@@ -47,6 +48,10 @@ func (m *MDWManager) AuthedMiddleware() fiber.Handler {
 		if err != nil {
 			fmt.Println(err.Error())
 			return err
+		}
+
+		if claims.ExpiresAt.Before(time.Now()) && c.Path() != "/user/refresh" {
+			return errors.New("unauthorized")
 		}
 
 		c.Locals("claims", claims)

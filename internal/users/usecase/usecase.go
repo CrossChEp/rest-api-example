@@ -8,6 +8,7 @@ import (
 	"rest-api-example/config"
 	"rest-api-example/internal/models"
 	"rest-api-example/pkg/utils"
+	"time"
 )
 
 type UserUC struct {
@@ -50,6 +51,31 @@ func (u *UserUC) SignIn(ctx context.Context, signInData SignIn) (string, error) 
 	token.Claims = models.Claims{
 		UserID:         user.ID,
 		Email:          user.Email,
+		ExpiresAt:      time.Now().Add(time.Minute * 30),
+		StandardClaims: jwt.StandardClaims{},
+	}
+
+	tokenStr, err := token.SignedString(u.cfg.PrivateKey)
+	if err != nil {
+		return "", err
+	}
+
+	return tokenStr, nil
+}
+
+func (u *UserUC) RefreshToken(ctx context.Context, userID models.UserID) (string, error) {
+	user, err := u.userRepo.Get(ctx, models.UserFilter{
+		IDs: []models.UserID{userID},
+	})
+	if err != nil {
+		return "", err
+	}
+
+	token := jwt.New(jwt.SigningMethodES256)
+	token.Claims = models.Claims{
+		UserID:         user.ID,
+		Email:          user.Email,
+		ExpiresAt:      time.Now().Add(time.Minute * 30),
 		StandardClaims: jwt.StandardClaims{},
 	}
 

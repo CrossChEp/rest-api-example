@@ -80,3 +80,21 @@ func (h *UserHandlers) GetOwn() fiber.Handler {
 		})
 	}
 }
+
+func (h *UserHandlers) RefreshToken() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		claims, ok := c.Locals("claims").(*models.Claims)
+		if !ok {
+			return errors.New("cannot get claims")
+		}
+
+		token, err := h.userUC.RefreshToken(c.Context(), claims.UserID)
+		if err != nil {
+			return err
+		}
+
+		return c.JSON(fiber.Map{
+			"data": token,
+		})
+	}
+}
